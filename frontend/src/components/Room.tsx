@@ -45,7 +45,7 @@ export default function Room({ roomId, userId, userName }: RoomProps) {
       setVideoState(vs)
     })
 
-    socket.on('participant-joined', (participant: Participant) => {
+    socket.on('participant-joined', ({ participant }: { participant: Participant }) => {
       setParticipants((prev) => {
         if (prev.find((p) => p.id === participant.id)) return prev
         return [...prev, participant]
