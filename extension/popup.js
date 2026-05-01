@@ -10,7 +10,7 @@ let polling = null;
 
 async function load() {
   const data = await chrome.storage.local.get(['backendUrl', 'roomId', 'userId']);
-  backendUrlInput.value = data.backendUrl || 'http://localhost:3001';
+  backendUrlInput.value = data.backendUrl || 'https://refreshing-charm-production-9584.up.railway.app';
   roomIdInput.value = data.roomId || '';
 
   let userId = data.userId;
