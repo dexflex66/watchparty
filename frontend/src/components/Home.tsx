@@ -21,7 +21,11 @@ export default function Home({ onNavigateToRoom }: HomeProps) {
     setCreating(true)
     setError('')
     try {
-      const res = await fetch(`${BACKEND_URL}/api/rooms`, { method: 'POST' })
+      const res = await fetch(`${BACKEND_URL}/api/rooms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hostName: displayName.trim() }),
+      })
       if (!res.ok) throw new Error('Server error')
       const data = await res.json()
       onNavigateToRoom(data.roomId, userId, displayName.trim())
