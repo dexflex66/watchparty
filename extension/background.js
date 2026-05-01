@@ -74,7 +74,7 @@ function connect(backendUrl, roomId, userId) {
   }
 
   ws.onopen = () => {
-    ws.send('40');
+    // Do not send '40' here — wait for server's EIO open packet ('0{...}') first
   };
 
   ws.onmessage = (event) => {
@@ -87,13 +87,14 @@ function connect(backendUrl, roomId, userId) {
     }
 
     if (packet.engine === 'open') {
+      // Server sent EIO open — now send socket.io connect packet
       ws.send('40');
       return;
     }
 
     if (packet.engine === 'message' && packet.socket === 'connect') {
       isConnected = true;
-      emit('join-room', { roomId: currentRoomId, userId: currentUserId });
+      emit('join-room', { roomId: currentRoomId, userId: currentUserId, userName: 'Extension User' });
       return;
     }
 

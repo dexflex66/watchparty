@@ -5,6 +5,7 @@ interface PlatformSelectorProps {
   current: Platform
   roomId: string
   socket: Socket
+  onPlatformChange: (platform: Platform) => void
 }
 
 const PLATFORMS: { id: Platform; label: string }[] = [
@@ -13,10 +14,11 @@ const PLATFORMS: { id: Platform; label: string }[] = [
   { id: 'prime', label: 'Prime' },
 ]
 
-export default function PlatformSelector({ current, roomId, socket }: PlatformSelectorProps) {
+export default function PlatformSelector({ current, roomId, socket, onPlatformChange }: PlatformSelectorProps) {
   const handleSelect = (platform: Platform) => {
     if (platform === current) return
-    socket.emit('video-source', { roomId, platform, videoId: null })
+    socket.emit('video-source', { roomId, platform, videoId: null, currentTime: 0 })
+    onPlatformChange(platform)
   }
 
   return (

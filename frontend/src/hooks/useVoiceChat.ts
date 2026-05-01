@@ -66,6 +66,7 @@ export function useVoiceChat({
         } else if (data.type === 'answer') {
           socket.emit('webrtc-answer', { roomId, targetUserId, signal: data })
         } else {
+          // ICE candidates and other signaling data
           socket.emit('webrtc-ice-candidate', { roomId, targetUserId, signal: data })
         }
       })

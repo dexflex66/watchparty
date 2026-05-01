@@ -64,7 +64,7 @@ io.on('connection', (socket: Socket) => {
   socket.on('join-room', ({ roomId, userId, userName }: { roomId: string; userId: string; userName: string }) => {
     const ok = roomManager.addParticipant(roomId, userId, userName);
     if (!ok) {
-      socket.emit('error', { message: 'Room not found' });
+      socket.emit('room-not-found');
       return;
     }
 
@@ -139,29 +139,18 @@ io.on('connection', (socket: Socket) => {
 
   // WebRTC signaling
 
-  socket.on('webrtc-offer', ({ targetId, offer }: { roomId: string; targetId: string; offer: unknown }) => {
-    const fromId = socketToUser.get(socket.id);
-    const targetSocketId = userToSocket.get(targetId);
-    if (targetSocketId) {
-      io.to(targetSocketId).emit('webrtc-offer', { fromId, offer });
-    }
-  });
+  const forwardWebRTC = (event: string) =>
+    ({ targetUserId, signal }: { roomId: string; targetUserId: string; signal: unknown }) => {
+      const fromUserId = socketToUser.get(socket.id);
+      const targetSocketId = userToSocket.get(targetUserId);
+      if (targetSocketId) {
+        io.to(targetSocketId).emit(event, { fromUserId, signal });
+      }
+    };
 
-  socket.on('webrtc-answer', ({ targetId, answer }: { roomId: string; targetId: string; answer: unknown }) => {
-    const fromId = socketToUser.get(socket.id);
-    const targetSocketId = userToSocket.get(targetId);
-    if (targetSocketId) {
-      io.to(targetSocketId).emit('webrtc-answer', { fromId, answer });
-    }
-  });
-
-  socket.on('webrtc-ice-candidate', ({ targetId, candidate }: { roomId: string; targetId: string; candidate: unknown }) => {
-    const fromId = socketToUser.get(socket.id);
-    const targetSocketId = userToSocket.get(targetId);
-    if (targetSocketId) {
-      io.to(targetSocketId).emit('webrtc-ice-candidate', { fromId, candidate });
-    }
-  });
+  socket.on('webrtc-offer', forwardWebRTC('webrtc-offer'));
+  socket.on('webrtc-answer', forwardWebRTC('webrtc-answer'));
+  socket.on('webrtc-ice-candidate', forwardWebRTC('webrtc-ice-candidate'));
 
   socket.on('disconnect', () => {
     handleLeave(socket);

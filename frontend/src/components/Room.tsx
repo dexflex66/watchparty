@@ -7,7 +7,6 @@ import PlatformSelector from './PlatformSelector'
 import Chat from './Chat'
 import ParticipantList from './ParticipantList'
 import VoiceControls from './VoiceControls'
-import { v4 as uuidv4 } from 'uuid'
 
 interface RoomProps {
   roomId: string
@@ -79,17 +78,9 @@ export default function Room({ roomId, userId, userName }: RoomProps) {
 
   const handleSendMessage = useCallback(
     (text: string) => {
-      const msg: ChatMessage = {
-        id: uuidv4(),
-        senderId: userId,
-        senderName: userName,
-        text,
-        timestamp: Date.now(),
-      }
-      socket.emit('chat-message', { roomId, message: msg })
-      setMessages((prev) => [...prev, msg])
+      socket.emit('chat-message', { roomId, text })
     },
-    [socket, roomId, userId, userName]
+    [socket, roomId]
   )
 
   if (roomNotFound) {
@@ -126,7 +117,12 @@ export default function Room({ roomId, userId, userName }: RoomProps) {
 
       {/* Right sidebar */}
       <div className="w-80 flex flex-col gap-3 p-3 bg-gray-900 border-l border-gray-800 overflow-y-auto">
-        <PlatformSelector current={videoState.platform} roomId={roomId} socket={socket} />
+        <PlatformSelector
+          current={videoState.platform}
+          roomId={roomId}
+          socket={socket}
+          onPlatformChange={(platform) => setVideoState((prev) => ({ ...prev, platform, videoId: null }))}
+        />
         <ParticipantList participants={participants} currentUserId={userId} />
         <VoiceControls
           isMuted={isMuted}
