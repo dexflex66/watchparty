@@ -118,6 +118,16 @@ io.on('connection', (socket: Socket) => {
     socket.to(roomId).emit('video-source', { platform, videoId, currentTime });
   });
 
+  socket.on('sync-countdown', ({ roomId }: { roomId: string }) => {
+    const userId = socketToUser.get(socket.id);
+    const room = roomManager.getRoom(roomId);
+    const senderName = room?.participants.get(userId || '')?.name || 'Someone';
+    io.to(roomId).emit('sync-countdown', {
+      startAt: Date.now() + 3500,
+      senderName,
+    });
+  });
+
   socket.on('chat-message', ({ roomId, text }: { roomId: string; text: string }) => {
     const userId = socketToUser.get(socket.id);
     if (!userId) return;

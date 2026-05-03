@@ -2,3 +2,13 @@ node_modules/
 dist/
 .env
 .vercel
+
+# Android build artifacts
+frontend/android/.gradle/
+frontend/android/app/build/
+frontend/android/build/
+frontend/android/local.properties
+frontend/android/captures/
+frontend/android/.idea/
+frontend/android/*.iml
+frontend/android/app/release/

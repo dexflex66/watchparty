@@ -7,6 +7,7 @@ import PlatformSelector from './PlatformSelector'
 import Chat from './Chat'
 import ParticipantList from './ParticipantList'
 import VoiceControls from './VoiceControls'
+import SyncCountdown from './SyncCountdown'
 
 interface RoomProps {
   roomId: string
@@ -28,6 +29,7 @@ export default function Room({ roomId, userId, userName }: RoomProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [voiceEnabled, setVoiceEnabled] = useState(false)
   const [roomNotFound, setRoomNotFound] = useState(false)
+  const [countdown, setCountdown] = useState<{ startAt: number; senderName: string } | null>(null)
 
   const { isMuted, toggleMute } = useVoiceChat({
     socket,
@@ -66,6 +68,10 @@ export default function Room({ roomId, userId, userName }: RoomProps) {
 
     socket.on('room-not-found', () => setRoomNotFound(true))
 
+    socket.on('sync-countdown', ({ startAt, senderName }: { startAt: number; senderName: string }) => {
+      setCountdown({ startAt, senderName })
+    })
+
     return () => {
       socket.off('room-state')
       socket.off('participant-joined')
@@ -73,6 +79,7 @@ export default function Room({ roomId, userId, userName }: RoomProps) {
       socket.off('video-source')
       socket.off('chat-message')
       socket.off('room-not-found')
+      socket.off('sync-countdown')
     }
   }, [socket, roomId, userId, userName])
 
@@ -96,6 +103,11 @@ export default function Room({ roomId, userId, userName }: RoomProps) {
 
   return (
     <div className="h-screen bg-gray-900 flex overflow-hidden">
+      <SyncCountdown
+        startAt={countdown?.startAt ?? null}
+        senderName={countdown?.senderName ?? ''}
+        onDone={() => setCountdown(null)}
+      />
       {/* Video area */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="bg-gray-900 px-4 py-2 flex items-center gap-3 border-b border-gray-800">
@@ -104,6 +116,13 @@ export default function Room({ roomId, userId, userName }: RoomProps) {
           <span className="text-gray-300 font-mono text-sm bg-gray-800 px-2 py-0.5 rounded select-all">
             {roomId}
           </span>
+          <button
+            onClick={() => socket.emit('sync-countdown', { roomId })}
+            className="ml-auto bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors"
+            title="Counts down 3-2-1 on every device, then everyone presses play together"
+          >
+            Sync Now (3-2-1-GO)
+          </button>
         </div>
         <div className="flex-1 min-h-0">
           <VideoPlayer
