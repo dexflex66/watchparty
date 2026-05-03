@@ -28,7 +28,7 @@ export default function Home({ onNavigateToRoom }: HomeProps) {
       })
       if (!res.ok) throw new Error('Server error')
       const data = await res.json()
-      onNavigateToRoom(data.roomId, userId, displayName.trim())
+      onNavigateToRoom(data.roomId, data.hostId, displayName.trim())
     } catch {
       setError('Failed to create room. Is the backend running?')
     } finally {

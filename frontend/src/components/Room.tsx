@@ -102,26 +102,26 @@ export default function Room({ roomId, userId, userName }: RoomProps) {
   }
 
   return (
-    <div className="h-screen bg-gray-900 flex overflow-hidden">
+    <div className="h-screen bg-gray-900 flex flex-col md:flex-row overflow-hidden">
       <SyncCountdown
         startAt={countdown?.startAt ?? null}
         senderName={countdown?.senderName ?? ''}
         onDone={() => setCountdown(null)}
       />
       {/* Video area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className="bg-gray-900 px-4 py-2 flex items-center gap-3 border-b border-gray-800">
-          <span className="text-purple-400 font-bold text-lg">WatchParty</span>
-          <span className="text-gray-500 text-sm">Room:</span>
-          <span className="text-gray-300 font-mono text-sm bg-gray-800 px-2 py-0.5 rounded select-all">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
+        <div className="bg-gray-900 px-3 py-2 flex items-center gap-2 border-b border-gray-800 flex-wrap">
+          <span className="text-purple-400 font-bold text-base md:text-lg">WatchParty</span>
+          <span className="text-gray-500 text-xs md:text-sm hidden sm:inline">Room:</span>
+          <span className="text-gray-300 font-mono text-xs bg-gray-800 px-2 py-0.5 rounded select-all max-w-[140px] truncate">
             {roomId}
           </span>
           <button
             onClick={() => socket.emit('sync-countdown', { roomId })}
-            className="ml-auto bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors"
+            className="ml-auto bg-purple-600 hover:bg-purple-500 text-white text-xs md:text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
             title="Counts down 3-2-1 on every device, then everyone presses play together"
           >
-            Sync Now (3-2-1-GO)
+            Sync Now
           </button>
         </div>
         <div className="flex-1 min-h-0">
@@ -134,8 +134,8 @@ export default function Room({ roomId, userId, userName }: RoomProps) {
         </div>
       </div>
 
-      {/* Right sidebar */}
-      <div className="w-80 flex flex-col gap-3 p-3 bg-gray-900 border-l border-gray-800 overflow-y-auto">
+      {/* Sidebar — bottom on mobile, right on desktop */}
+      <div className="w-full md:w-80 h-2/5 md:h-auto flex flex-col gap-3 p-3 bg-gray-900 border-t md:border-t-0 md:border-l border-gray-800 overflow-y-auto">
         <PlatformSelector
           current={videoState.platform}
           roomId={roomId}
